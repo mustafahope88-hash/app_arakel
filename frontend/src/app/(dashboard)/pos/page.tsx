@@ -207,38 +207,43 @@ export default function POSPage() {
 
   return (
     <Box sx={{ height: 'calc(100vh - 80px)', p: { xs: 2, sm: 3 }, direction: 'rtl' }}>
-      <Box sx={{ display: 'flex', height: '100%', gap: 3, flexDirection: 'row-reverse' }}>
+      <Box sx={{ display: 'flex', height: '100%', gap: 3, flexDirection: { xs: 'column', md: 'row-reverse' } }}>
         
         {/* CART PANEL */}
         <Card sx={{ 
-          width: 400, 
+          width: { xs: '100%', md: 400 },
           flexShrink: 0, 
           display: 'flex', 
           flexDirection: 'column', 
           overflow: 'hidden',
-          borderRadius: 4
+          borderRadius: 2,
+          height: '100%',
+          boxShadow: 2
         }}>
-          {/* Header */}
+          {/* Compact Header */}
           <Box sx={{ 
             display: 'flex', 
-            flexDirection: 'column', 
             alignItems: 'center', 
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             borderBottom: 1,
             borderColor: 'divider',
-            px: 3,
-            py: 2.5,
+            px: 2,
+            py: 1.5,
             bgcolor: 'grey.50'
           }}>
-            <Avatar sx={{ mb: 1.5, bgcolor: 'primary.light', width: 48, height: 48 }}>
-              <ShoppingBagIcon />
-            </Avatar>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>الطلبات</Typography>
-            <Typography variant="caption" color="text.secondary">{items.length} منتجات مضافة</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ShoppingBagIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>الطلبات</Typography>
+            </Box>
+            <Chip 
+              label={`${items.length} منتج`} 
+              size="small" 
+              sx={{ height: 24, fontSize: '0.75rem', fontWeight: 'bold' }} 
+            />
           </Box>
 
           {/* Cart Items - Scrollable Area */}
-          <Box sx={{ flex: 1, overflow: 'auto', px: 2.5, py: 2 }}>
+          <Box sx={{ flex: 1, overflow: 'auto', px: 1.5, py: 1 }}>
             {items.length === 0 ? (
               <Box sx={{ 
                 display: 'flex', 
@@ -247,145 +252,121 @@ export default function POSPage() {
                 justifyContent: 'center',
                 height: '100%',
                 textAlign: 'center',
-                opacity: 0.6
+                opacity: 0.5
               }}>
-                <Avatar sx={{ mb: 2, bgcolor: 'grey.100', width: 64, height: 64 }}>
-                  <ShoppingBagIcon sx={{ fontSize: 32, color: 'grey.400' }} />
-                </Avatar>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>السلة فارغة</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                  قم بإضافة منتجات من القائمة لبدء البيع
-                </Typography>
+                <ShoppingBagIcon sx={{ fontSize: 40, color: 'grey.300', mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">السلة فارغة</Typography>
               </Box>
             ) : (
-              <Stack spacing={1.5}>
+              <Stack spacing={0.5}>
                 {items.map((item) => (
-                  <Card 
+                  <Paper 
                     key={item.productId} 
                     variant="outlined"
                     sx={{ 
-                      position: 'relative',
-                      borderRadius: 3,
-                      p: 2.5,
-                      transition: 'all 0.3s',
+                      p: 1,
+                      borderRadius: 1.5,
+                      transition: 'all 0.2s',
                       '&:hover': {
                         borderColor: 'primary.main',
-                        boxShadow: 2
+                        bgcolor: 'action.hover'
                       }
                     }}
                   >
-                    <IconButton
-                      onClick={() => removeItem(item.productId)}
-                      size="small"
-                      sx={{
-                        position: 'absolute',
-                        left: 8,
-                        top: 8,
-                        bgcolor: 'error.light',
-                        color: 'error.main',
-                        width: 28,
-                        height: 28,
-                        '&:hover': {
-                          bgcolor: 'error.main',
-                          color: 'white'
-                        }
-                      }}
-                    >
-                      <Trash2Icon fontSize="small" />
-                    </IconButton>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 'semibold' }} noWrap>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      {/* Right Side - Product Info */}
+                      <Box sx={{ flex: 1, minWidth: 0, mr: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 'bold', display: 'block' }} noWrap>
                           {item.name}
                         </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', mt: 0.5 }}>
-                          {formatCurrency(Number(item.price), currency)}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+                            {formatCurrency(Number(item.price), currency)}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            × {item.quantity}
+                          </Typography>
+                        </Box>
                       </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <ButtonGroup size="small" sx={{ borderRadius: 2 }}>
+                      {/* Left Side - Controls */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <ButtonGroup size="small" sx={{ borderRadius: 1, '& .MuiButton-root': { minWidth: 28, width: 28, height: 28, p: 0 } }}>
                           <Button 
                             onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                            sx={{ minWidth: 40, height: 40, fontSize: '1rem' }}
                           >
-                            <MinusIcon />
+                            <MinusIcon sx={{ fontSize: 16 }} />
                           </Button>
-                          <Button disabled sx={{ minWidth: 48, fontWeight: 'bold', fontSize: '1rem' }}>
+                          <Button disabled sx={{ fontWeight: 'bold', fontSize: '0.75rem' }}>
                             {item.quantity}
                           </Button>
                           <Button 
                             onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                            sx={{ minWidth: 40, height: 40, fontSize: '1rem' }}
                           >
-                            <PlusIcon />
+                            <PlusIcon sx={{ fontSize: 16 }} />
                           </Button>
                         </ButtonGroup>
+                        <IconButton 
+                          onClick={() => removeItem(item.productId)}
+                          size="small"
+                          sx={{ 
+                            width: 24, 
+                            height: 24, 
+                            color: 'error.main',
+                            '&:hover': { bgcolor: 'error.light' }
+                          }}
+                        >
+                          <Trash2Icon sx={{ fontSize: 14 }} />
+                        </IconButton>
                       </Box>
                     </Box>
-
-                    <Box sx={{ mt: 1.5, textAlign: 'center' }}>
-                      <Chip 
-                        label={`الإجمالي: ${formatCurrency(item.price * item.quantity, currency)}`}
-                        variant="outlined"
-                        size="small"
-                        sx={{ fontWeight: 'bold' }}
-                      />
-                    </Box>
-                  </Card>
+                  </Paper>
                 ))}
               </Stack>
             )}
           </Box>
 
-          {/* Footer / Summary - Reduced Size */}
+          {/* Footer / Summary - Compact */}
           <Paper sx={{ 
             borderTop: 1, 
             borderColor: 'divider',
-            px: { xs: 2.5, sm: 3 },
-            py: { xs: 2, sm: 2.5 },
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
-            boxShadow: '0 -10px 30px -10px rgba(0,0,0,0.1)'
+            px: 1.5,
+            py: 1.5,
+            flexShrink: 0,
+            bgcolor: 'background.paper'
           }}>
-            <Stack spacing={1.5}>
-              {/* Subtotal */}
+            <Stack spacing={1}>
+              {/* Subtotal & Total */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" color="text.secondary">المجموع الفرعي</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                <Typography variant="caption" color="text.secondary">المجموع الفرعي</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
                   {formatCurrency(subtotal, currency)}
                 </Typography>
               </Box>
-              
+
               {/* Coupon Row */}
               {appliedCoupon ? (
-                <Paper sx={{ 
-                  p: 1.5, 
-                  bgcolor: 'success.light', 
-                  borderRadius: 2,
-                  border: 1,
-                  borderColor: 'success.main'
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  bgcolor: 'success.light',
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.5
                 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TagIcon sx={{ color: 'success.main', fontSize: 18 }} />
-                      <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                        {appliedCoupon.code}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'success.main' }}>
-                        -{formatCurrency(appliedCoupon.discount, currency)}
-                      </Typography>
-                      <IconButton size="small" onClick={handleRemoveCoupon} sx={{ color: 'error.main', width: 24, height: 24 }}>
-                        <XIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <TagIcon sx={{ color: 'success.main', fontSize: 14 }} />
+                    <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+                      {appliedCoupon.code} (-{formatCurrency(appliedCoupon.discount, currency)})
+                    </Typography>
                   </Box>
-                </Paper>
+                  <IconButton size="small" onClick={handleRemoveCoupon} sx={{ width: 20, height: 20, color: 'error.main' }}>
+                    <XIcon sx={{ fontSize: 12 }} />
+                  </IconButton>
+                </Box>
               ) : (
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
                   <TextField
                     fullWidth
                     size="small"
@@ -393,20 +374,23 @@ export default function POSPage() {
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                     disabled={applyingCoupon}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <TagIcon sx={{ color: 'text.secondary', fontSize: 18 }} />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <TagIcon sx={{ color: 'text.secondary', fontSize: 14 }} />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
-                    sx={{ '& input': { textAlign: 'center', py: 1, borderRadius: 2, fontSize: '0.875rem' } }}
+                    sx={{ '& input': { textAlign: 'center', py: 0.5, borderRadius: 1, fontSize: '0.75rem' } }}
                   />
                   <Button
                     variant="contained"
                     onClick={handleApplyCoupon}
                     disabled={applyingCoupon || !couponCode.trim()}
-                    sx={{ borderRadius: 2, px: 2, minWidth: 90 }}
+                    size="small"
+                    sx={{ borderRadius: 1, px: 1, minWidth: 60, fontSize: '0.75rem' }}
                   >
                     {applyingCoupon ? '...' : 'تطبيق'}
                   </Button>
@@ -422,37 +406,39 @@ export default function POSPage() {
                   placeholder="خصم يدوي"
                   value={discount || ''}
                   onChange={(e) => setDiscount(Number(e.target.value))}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PercentIcon sx={{ color: 'text.secondary', fontSize: 18 }} />
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PercentIcon sx={{ color: 'text.secondary', fontSize: 14 }} />
+                        </InputAdornment>
+                      ),
+                    },
+                    htmlInput: { min: 0, max: subtotal }
                   }}
-                  inputProps={{ min: 0, max: subtotal }}
-                  sx={{ '& input': { textAlign: 'center', py: 1, borderRadius: 2, fontSize: '0.875rem' } }}
+                  sx={{ '& input': { textAlign: 'center', py: 0.5, borderRadius: 1, fontSize: '0.75rem' } }}
                 />
               )}
 
-              <Divider sx={{ my: 0.5 }} />
+              <Divider sx={{ my: 0 }} />
 
               {/* Total */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" color="text.secondary">الإجمالي المطلوب</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'extrabold', color: 'primary.main' }}>
+                <Typography variant="caption" sx={{ fontWeight: 'bold' }}>الإجمالي</Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                   {formatCurrency(total, currency)}
                 </Typography>
               </Box>
 
-              {/* Payment & Checkout */}
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              {/* Payment Methods */}
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <Button
                   fullWidth
                   variant={paymentMethod === 'cash' ? 'contained' : 'outlined'}
                   onClick={() => setPaymentMethod('cash')}
-                  startIcon={<BanknoteIcon />}
+                  startIcon={<BanknoteIcon sx={{ fontSize: 16 }} />}
                   size="small"
-                  sx={{ borderRadius: 2, py: 1 }}
+                  sx={{ borderRadius: 1, py: 0.5, fontSize: '0.75rem' }}
                 >
                   نقدي
                 </Button>
@@ -460,9 +446,9 @@ export default function POSPage() {
                   fullWidth
                   variant={paymentMethod === 'card' ? 'contained' : 'outlined'}
                   onClick={() => setPaymentMethod('card')}
-                  startIcon={<CreditCardIcon />}
+                  startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
                   size="small"
-                  sx={{ borderRadius: 2, py: 1 }}
+                  sx={{ borderRadius: 1, py: 0.5, fontSize: '0.75rem' }}
                 >
                   بطاقة
                 </Button>
@@ -471,7 +457,7 @@ export default function POSPage() {
               {message && (
                 <Alert 
                   severity={message.includes('تم') ? 'success' : 'error'}
-                  sx={{ borderRadius: 2, py: 0 }}
+                  sx={{ borderRadius: 1, py: 0, fontSize: '0.75rem' }}
                 >
                   {message}
                 </Alert>
@@ -482,7 +468,7 @@ export default function POSPage() {
                   variant="outlined"
                   fullWidth
                   size="small"
-                  sx={{ borderRadius: 2, py: 1 }}
+                  sx={{ borderRadius: 1, py: 0.5, fontSize: '0.75rem' }}
                   onClick={() => router.push(`/invoices/${lastInvoiceId}`)}
                 >
                   عرض الفاتورة
@@ -492,13 +478,13 @@ export default function POSPage() {
               <Button
                 variant="contained"
                 fullWidth
-                size="medium"
+                size="small"
                 onClick={handleCheckout}
                 disabled={submitting || items.length === 0}
                 sx={{ 
-                  borderRadius: 2, 
-                  py: 1.5,
-                  fontSize: '1rem',
+                  borderRadius: 1, 
+                  py: 1,
+                  fontSize: '0.875rem',
                   fontWeight: 'bold'
                 }}
               >
@@ -520,7 +506,8 @@ export default function POSPage() {
           borderColor: 'divider',
           bgcolor: 'background.paper',
           boxShadow: 1,
-          p: 3
+          p: 3,
+          minHeight: 0
         }}>
           {/* Search Header */}
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
@@ -530,12 +517,14 @@ export default function POSPage() {
               placeholder="ابحث عن منتج بالاسم..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                },
               }}
               sx={{ 
                 maxWidth: 600,
@@ -562,35 +551,34 @@ export default function POSPage() {
               <Grid container spacing={3.5}>
                 {filteredProducts.map((product) => {
                   const imageSrc = product.imageUrl
-                    ? product.imageUrl.startsWith('/uploads')
-                      ? product.imageUrl
-                      : product.imageUrl
-                    : '';
-
-                  const isLowStock = product.stockQuantity <= product.minStock;
+                    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${product.imageUrl}`
+                    : null;
+                  const isLowStock = product.stockQuantity <= (product.minStock || 5);
 
                   return (
-                    <Grid item xs={12} sm={6} md={6} lg={4} xl={4} key={product.id}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4, xl: 4 }} key={product.id}>
                       <Card
                         sx={{
                           height: '100%',
                           cursor: 'pointer',
                           borderRadius: 3,
-                          transition: 'all 0.3s',
+                          transition: 'all 0.2s',
+                          border: 1,
+                          borderColor: 'divider',
                           '&:hover': {
-                            transform: 'scale(1.03)',
-                            boxShadow: 8,
+                            transform: 'translateY(-4px)',
+                            boxShadow: 6,
                             borderColor: 'primary.main'
                           }
                         }}
                         onClick={() => handleAddToCart(product)}
                       >
-                        {/* Image Area - Bigger */}
+                        {/* Image Area */}
                         <Box sx={{ 
                           position: 'relative',
-                          height: 176,
+                          height: 160,
                           overflow: 'hidden',
-                          bgcolor: 'grey.100'
+                          bgcolor: 'grey.50'
                         }}>
                           {imageSrc ? (
                             <Box
@@ -601,8 +589,8 @@ export default function POSPage() {
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'cover',
-                                transition: 'transform 0.7s',
-                                '&:hover': { transform: 'scale(1.1)' }
+                                transition: 'transform 0.5s',
+                                '&:hover': { transform: 'scale(1.08)' }
                               }}
                               onError={(e: any) => {
                                 e.target.style.display = 'none';
@@ -614,38 +602,38 @@ export default function POSPage() {
                               alignItems: 'center', 
                               justifyContent: 'center',
                               height: '100%',
-                              bgcolor: 'grey.50'
                             }}>
-                              <ImageIcon sx={{ fontSize: 80, color: 'grey.300' }} />
+                              <ImageIcon sx={{ fontSize: 64, color: 'grey.300' }} />
                             </Box>
                           )}
                           
                           {/* Stock Badge */}
                           <Chip
-                            label={`المخزون: ${product.stockQuantity}`}
+                            label={product.stockQuantity}
                             size="small"
                             sx={{
                               position: 'absolute',
                               top: 8,
                               left: 8,
-                              bgcolor: isLowStock ? 'error.main' : 'background.paper',
-                              color: isLowStock ? 'white' : 'text.primary',
+                              bgcolor: isLowStock ? 'error.main' : 'success.main',
+                              color: 'white',
                               fontWeight: 'bold',
-                              backdropFilter: 'blur(10px)'
+                              fontSize: '0.75rem',
+                              height: 24,
                             }}
                           />
                         </Box>
 
                         {/* Content Area */}
-                        <CardContent sx={{ textAlign: 'center', p: 3, pt: 2.5 }}>
+                        <CardContent sx={{ p: 2, textAlign: 'center' }}>
                           <Typography 
-                            variant="body1" 
-                            sx={{ fontWeight: 'bold', mb: 1.5, fontSize: '1.1rem' }}
+                            variant="body2" 
+                            sx={{ fontWeight: 'bold', mb: 1, fontSize: '0.9rem' }}
                             noWrap
                           >
                             {product.name}
                           </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 'extrabold', color: 'primary.main', fontSize: '1.25rem' }}>
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main', fontSize: '1.1rem' }}>
                             {formatCurrency(Number(product.salePrice), currency)}
                           </Typography>
                         </CardContent>
